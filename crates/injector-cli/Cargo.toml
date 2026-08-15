@@ -1,0 +1,15 @@
+[package]
+name = "injector-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "injector"
+path = "src/main.rs"
+
+[dependencies]
+injector-core = { path = "../injector-core" }
+clap.workspace = true

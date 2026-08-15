@@ -1,0 +1,5 @@
+[target.'cfg(windows)']
+rustflags = [
+    "-C", "link-arg=/DEBUG:NONE",
+    "-C", "link-arg=/PDBALTPATH:none",
+]
