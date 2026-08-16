@@ -8,14 +8,22 @@ use injector_core::{
     inject, list_processes, InjectRequest, InjectionMethod, InjectionOptions, ProcessInfo,
 };
 
-const APP_TITLE: &str = "Injector";
+const APP_TITLE: &str = "RustDLLInjector";
+const ICON_RGBA: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/icon.rgba"));
+const ICON_SIZE: u32 = 32;
 
 pub fn run() -> Result<(), eframe::Error> {
+    let icon = egui::IconData {
+        rgba: ICON_RGBA.to_vec(),
+        width: ICON_SIZE,
+        height: ICON_SIZE,
+    };
     let options = NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_inner_size([720.0, 520.0])
             .with_min_inner_size([560.0, 420.0])
-            .with_title(APP_TITLE),
+            .with_title(APP_TITLE)
+            .with_icon(icon),
         ..Default::default()
     };
     eframe::run_native(

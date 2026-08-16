@@ -37,7 +37,14 @@ extra arguments are forwarded, e.g. `./build.ps1 -p injector-cli`.
 Both binaries land in `target/release/`:
 
 - `injector.exe` — command-line interface
-- `injector-gui.exe` — graphical interface (also usable headlessly)
+- `RustDLLInjector.exe` — graphical interface (also usable headlessly)
+
+### Windows installer
+
+The `installer/` directory contains an Inno Setup script that packages the
+GUI into a single-file `.exe` installer. See
+[`installer/README.md`](installer/README.md) for details — in short: build
+the release binary, then run `iscc installer\RustDLLInjector.iss`.
 
 The DLL you inject must match the target process architecture. To inject
 into a 32-bit process, build with `--target i686-pc-windows-msvc`.
@@ -74,7 +81,7 @@ injector --list
 Launch with no arguments to open the window:
 
 ```bash
-injector-gui
+RustDLLInjector.exe
 ```
 
 - Pick a process (filter box narrows the list)
