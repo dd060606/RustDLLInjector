@@ -31,30 +31,35 @@ name, `.cargo`, `.rustup` and repo paths do not end up in the binaries):
 ```
 
 The wrapper is a thin shim around `cargo build --release` that sets
-`CARGO_ENCODED_RUSTFLAGS` with per-host `--remap-path-prefix` entries. Any
-extra arguments are forwarded, e.g. `./build.ps1 -p injector-cli`.
+`CARGO_ENCODED_RUSTFLAGS` with per-host `--remap-path-prefix` entries, and
+builds **both** `x86_64-pc-windows-msvc` and `i686-pc-windows-msvc` (adding
+either target via `rustup` first if missing). Any extra arguments are
+forwarded to both builds, e.g. `./build.ps1 -p injector-cli`.
 
-Both binaries land in `target/release/`:
+Both architectures land in their own target directory:
 
-- `injector.exe` — command-line interface
+- `target/x86_64-pc-windows-msvc/release/`
+- `target/i686-pc-windows-msvc/release/`
+
+each containing:
+
+- `RustDLLInjector-CLI.exe` — command-line interface
 - `RustDLLInjector.exe` — graphical interface (also usable headlessly)
 
 ### Windows installer
 
-The `installer/` directory contains an Inno Setup script that packages the
-GUI into a single-file `.exe` installer. See
+The `installer/` directory contains an Inno Setup script that packages both
+the GUI and CLI, for both architectures, into a single `.exe` installer. See
 [`installer/README.md`](installer/README.md) for details — in short: build
-the release binary, then run `iscc installer\RustDLLInjector.iss`.
-
-The DLL you inject must match the target process architecture. To inject
-into a 32-bit process, build with `--target i686-pc-windows-msvc`.
+both architectures (`./build.ps1`), then run
+`iscc installer\RustDLLInjector.iss`.
 
 ## Usage
 
 ### CLI
 
 ```
-injector [OPTIONS] --dll <PATH>
+RustDLLInjector-CLI [OPTIONS] --dll <PATH>
 
 Options:
   --pid <PID>         Target process id
@@ -71,10 +76,13 @@ Options:
 Examples:
 
 ```bash
-injector --process app.exe --dll plugin.dll
-injector --pid 4321 --dll .\payload.dll --method queue-user-apc
-injector --list
+RustDLLInjector-CLI --process app.exe --dll plugin.dll
+RustDLLInjector-CLI --pid 4321 --dll .\payload.dll --method queue-user-apc
+RustDLLInjector-CLI --list
 ```
+
+Use the `x86_64-pc-windows-msvc` build against x64 targets and the
+`i686-pc-windows-msvc` build against x86/WOW64 targets.
 
 ### GUI
 
@@ -115,5 +123,7 @@ codegen unit, symbols stripped, `panic = "abort"`).
 
 - The injector must run at the same or higher integrity level as the
   target.
-- Always match architecture: an x64 injector cannot load an x86 DLL, and
-  vice versa. The core validates this before touching the target.
+- Two architecture checks happen before anything touches the target
+  process, both in `injector-core::inject`:
+    1. **The injector binary's own bitness must match the target process.**
+    2. **The DLL's bitness must match the target process.**

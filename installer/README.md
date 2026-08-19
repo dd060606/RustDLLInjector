@@ -1,7 +1,16 @@
 # Windows installer
 
-An Inno Setup script that packages the GUI (`RustDLLInjector.exe`) into a
-single-file installer for Windows.
+An Inno Setup script that packages both the GUI (`RustDLLInjector.exe`) and
+CLI (`RustDLLInjector-CLI.exe`), **for both x64 and x86**, into a single
+installer.
+Installed layout:
+
+```
+{app}\x64\RustDLLInjector.exe
+{app}\x64\RustDLLInjector-CLI.exe
+{app}\x86\RustDLLInjector.exe
+{app}\x86\RustDLLInjector-CLI.exe
+```
 
 ## Prerequisites
 
@@ -11,8 +20,9 @@ single-file installer for Windows.
 
 ## Build
 
-1. Build the release binary from the repo root (this produces
-   `target/release/RustDLLInjector.exe` and embeds the app icon):
+1. Build both architectures from the repo root (this produces
+   `target/x86_64-pc-windows-msvc/release/` and
+   `target/i686-pc-windows-msvc/release/`, each with the GUI and CLI exes):
 
     ```powershell
     ./build.ps1
