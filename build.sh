@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Release build wrapper. Same purpose as build.ps1 for POSIX shells / git-bash on Windows.
 set -euo pipefail
 
 home_dir="${USERPROFILE:-${HOME:-}}"
@@ -21,4 +20,18 @@ joined="${flags[0]}"
 for f in "${flags[@]:1}"; do joined+="${sep}${f}"; done
 
 export CARGO_ENCODED_RUSTFLAGS="$joined"
-exec cargo build --release "$@"
+
+targets=("x86_64-pc-windows-msvc" "i686-pc-windows-msvc")
+
+for target in "${targets[@]}"; do
+    echo "==> installing target ${target} (no-op if already present)"
+    rustup target add "$target"
+
+    echo "==> building ${target}"
+    cargo build --release --target "$target" "$@"
+done
+
+echo "==> done, binaries in:"
+for target in "${targets[@]}"; do
+    echo "  target/${target}/release/"
+done

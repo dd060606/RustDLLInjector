@@ -17,7 +17,9 @@ pub mod methods;
 pub use dll::{dll_architecture, inspect_dll, DllInfo};
 pub use error::{InjectError, Result};
 pub use method::{InjectionMethod, InjectionOptions};
-pub use process::{list_processes, process_architecture, Architecture, ProcessInfo};
+pub use process::{
+    injector_architecture, list_processes, process_architecture, Architecture, ProcessInfo,
+};
 
 use std::path::Path;
 
@@ -34,6 +36,16 @@ pub struct InjectRequest<'a> {
 pub fn inject(req: &InjectRequest<'_>) -> Result<()> {
     let dll = inspect_dll(req.dll_path)?;
     let process_arch = process_architecture(req.pid)?;
+
+    let injector_arch = injector_architecture();
+    if injector_arch != process_arch {
+        return Err(InjectError::InjectorArchitectureMismatch {
+            pid: req.pid,
+            injector: injector_arch,
+            process: process_arch,
+        });
+    }
+
     if dll.architecture != process_arch {
         return Err(InjectError::ArchitectureMismatch {
             process: process_arch,

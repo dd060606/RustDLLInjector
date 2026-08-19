@@ -30,6 +30,16 @@ pub enum InjectError {
         dll: Architecture,
     },
 
+    #[error(
+        "this injector binary is {injector:?} but process {pid} is {process:?} — \
+         run the {process:?} build of the injector against this target instead"
+    )]
+    InjectorArchitectureMismatch {
+        pid: u32,
+        injector: Architecture,
+        process: Architecture,
+    },
+
     #[error("failed to resolve symbol {symbol} in {module}")]
     SymbolNotFound {
         module: &'static str,

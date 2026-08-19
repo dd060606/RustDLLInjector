@@ -98,6 +98,10 @@ fn host_native_arch() -> Architecture {
     }
 }
 
+pub fn injector_architecture() -> Architecture {
+    host_native_arch()
+}
+
 fn read_wide(buf: &[u16]) -> String {
     let len = buf
         .iter()

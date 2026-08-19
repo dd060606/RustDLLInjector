@@ -1,7 +1,4 @@
 #!/usr/bin/env pwsh
-# Release build wrapper. Sets --remap-path-prefix for the current user home,
-# CARGO_HOME and RUSTUP_HOME so no local filesystem paths (including the
-# user name) end up embedded in panic strings inside the produced binaries.
 
 $ErrorActionPreference = "Stop"
 
@@ -26,6 +23,20 @@ if ($repoDir)    { $flags += "--remap-path-prefix=$repoDir=[src]" }
 
 $env:CARGO_ENCODED_RUSTFLAGS = ($flags -join [char]0x1f)
 
-$cargoArgs = @("build", "--release") + $args
-& cargo @cargoArgs
-exit $LASTEXITCODE
+$targets = @("x86_64-pc-windows-msvc", "i686-pc-windows-msvc")
+
+foreach ($target in $targets) {
+    Write-Host "==> installing target $target (no-op if already present)"
+    & rustup target add $target
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+    Write-Host "==> building $target"
+    $cargoArgs = @("build", "--release", "--target", $target) + $args
+    & cargo @cargoArgs
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+}
+
+Write-Host "==> done, binaries in:"
+foreach ($target in $targets) {
+    Write-Host "  target/$target/release/"
+}
